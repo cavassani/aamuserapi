@@ -8,7 +8,9 @@ public class Person {
     @Id
     private Long id;
     private String name;
+    private String lastName;
     private String email;
+    private String password;
     private Integer age;
     private String telephone;
     @OneToOne(cascade = CascadeType.ALL)
@@ -68,7 +70,23 @@ public class Person {
         return active;
     }
 
-    public Boolean setActive(Boolean active) {
+    public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
