@@ -11,22 +11,27 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
     @Column(nullable = false)
     private String name;
 
+    @Column
     private String lastName;
 
     @Column(nullable = false)
     private String email;
 
+    @Column
     private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_date", nullable = false)
     private Date creationDate;
 
+    @Column
     private String telephone;
 
+    @Column
     private String cellphone;
 
     @OneToOne(cascade = CascadeType.ALL)

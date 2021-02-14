@@ -11,7 +11,7 @@ public class User extends  Person{
     private String cnpj;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserRole> roles;
+    private List<UserRole> role;
 
     public String getCpf() {
         return cpf;
