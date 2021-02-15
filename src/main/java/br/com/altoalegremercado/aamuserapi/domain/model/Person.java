@@ -12,10 +12,10 @@ public class Person {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column
+    @Column(length = 50)
     private String lastName;
 
     @Column(nullable = false)
@@ -28,10 +28,10 @@ public class Person {
     @Column(name = "creation_date", nullable = false)
     private Date creationDate;
 
-    @Column
+    @Column(length = 20)
     private String telephone;
 
-    @Column
+    @Column(length = 20)
     private String cellphone;
 
     @OneToOne(cascade = CascadeType.ALL)
