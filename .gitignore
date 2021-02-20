@@ -99,3 +99,5 @@ transaction-logs
 .flattened-pom.xml
 secrets.yml
 .gradletasknamecache
+
+src/main/resources/db/*

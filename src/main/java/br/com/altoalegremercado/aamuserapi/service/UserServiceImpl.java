@@ -14,8 +14,18 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService{
+
+    private final UserRepository userRepository;
+
     @Autowired
-    UserRepository userRepository;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public Iterable<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
     @Override
     public User getUserByName(String name) {
@@ -33,7 +43,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> getUsersByRole(Enum<Role> role) {
+    public List<User> getUsersByRole(Role role) {
         return userRepository.findByRole(role);
     }
 
@@ -43,28 +53,27 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User updateUser(Long id, User userUpdate) {
+    public User updateUser(Long id, User userUpdate) throws Exception {
         if (!id.equals(userUpdate.getId())) {
-            throw new HttpClientErrorException(HttpStatus.CONFLICT, "id in URI does not match vehicle vin to update");
+            throw new HttpClientErrorException(HttpStatus.CONFLICT, "id in URI does not match user to update");
         }
 
         Optional<User> userSearched = userRepository.findById(id);
 
-        if (!userSearched.isPresent()) {
-            //throw new UserNotFoundException("User with ID (" + id + ") not found!");
-        }
-        User orginalUser = userSearched.get();
+        User originalUser = userSearched.orElseThrow(() -> new Exception("User with ID (" + id + ") not found!"));
 
-        BeanUtils.copyProperties(userUpdate, orginalUser);
+        BeanUtils.copyProperties(userUpdate, originalUser);
 
         return userRepository.save(userUpdate);
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public Long deleteUser(Long id) throws Exception {
         Optional<User> user = userRepository.findById(id);
-        if(!user.isPresent()){}
-
-        userRepository.delete(user);
+        if(!user.isPresent()){
+           throw  new Exception("User with ID (" + id + ") not found!");
+        }
+        userRepository.deleteById(user.get().getId());
+        return id;
     }
 }

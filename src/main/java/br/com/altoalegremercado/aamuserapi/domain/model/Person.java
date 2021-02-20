@@ -25,6 +25,7 @@ public class Person {
     private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
+
     @Column(name = "creation_date", nullable = false)
     private Date creationDate;
 
@@ -118,6 +119,12 @@ public class Person {
 
     public void setCellphone(String cellphone) {
         this.cellphone = cellphone;
+    }
+
+    @PrePersist
+    @PreUpdate
+    protected void onCreate() {
+        creationDate = new Date();
     }
 
 }

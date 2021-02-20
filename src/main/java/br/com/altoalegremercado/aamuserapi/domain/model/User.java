@@ -1,5 +1,7 @@
 package br.com.altoalegremercado.aamuserapi.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -10,8 +12,17 @@ public class User extends  Person{
     private String cpf;
     private String cnpj;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserRole> role;
+
+    public List<UserRole> getRole() {
+        return role;
+    }
+
+    public void setRole(List<UserRole> role) {
+        this.role = role;
+    }
 
     public String getCpf() {
         return cpf;

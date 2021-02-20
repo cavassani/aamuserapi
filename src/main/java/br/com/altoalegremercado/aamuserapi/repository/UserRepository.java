@@ -2,7 +2,9 @@ package br.com.altoalegremercado.aamuserapi.repository;
 
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.User;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +18,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     User findByCnpj(String cnpj);
 
-    List<User> findByRole(Enum<Role> role);
+    @Query ("select distinct u from User u inner join u.role r  where r.role = :role")
+    List<User> findByRole(@Param("role") Role role);
 
 }

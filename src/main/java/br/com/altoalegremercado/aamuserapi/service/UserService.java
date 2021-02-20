@@ -36,11 +36,13 @@ public interface UserService {
      * @param role
      * @return lista usuarios
      */
-    List<User> getUsersByRole(Enum<Role> role);
+    List<User> getUsersByRole(Role role);
 
     User createUser(User newUser);
 
-    User updateUser(Long id, User userUpdate);
+    User updateUser(Long id, User userUpdate) throws Exception;
 
-    void deleteUser(Long id);
+    Iterable<User> getAllUsers();
+
+    Long deleteUser(Long id) throws Exception;
 }

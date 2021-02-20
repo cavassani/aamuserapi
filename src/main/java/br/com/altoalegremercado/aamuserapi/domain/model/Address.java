@@ -1,5 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.domain.model;
 
+
 import javax.persistence.*;
 
 @Entity
@@ -7,25 +8,24 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "adress_id")
     private Long id;
 
-    @Column()
+    @Column
     private String street;
 
-    @Column()
+    @Column
     private String zipCode;
 
-    @Column()
+    @Column
     private String number;
 
-    @Column()
+    @Column
     private String city;
 
-    @Column()
+    @Column
     private String state;
 
-    @Column()
+    @Column
     private String country;
 
     public String getStreet() {
@@ -76,12 +76,11 @@ public class Address {
         this.country = country;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Id
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
