@@ -20,6 +20,12 @@ public class Address {
     private String number;
 
     @Column
+    private String complement;
+
+    @Column
+    private String district;
+
+    @Column
     private String city;
 
     @Column
@@ -83,4 +89,22 @@ public class Address {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public String getComplement() {
+        return complement;
+    }
+
+    public void setComplement(String complement) {
+        this.complement = complement;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    
 }
