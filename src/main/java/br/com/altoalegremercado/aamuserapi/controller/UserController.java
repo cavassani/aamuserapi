@@ -30,10 +30,12 @@ public class UserController {
     public User getUserByName(@PathVariable String name) {
         return userService.getUserByName(name);
     }
+
     @GetMapping("/cpf/{cpf}")
     public User getUserByCpf(@PathVariable String cpf) {
         return userService.getUserByCpf(cpf);
     }
+
     @GetMapping("/cnpj/{cnpj}")
     public User getUserByCnpj(@PathVariable String cnpj) {
         return userService.getUserByCnpj(cnpj);
