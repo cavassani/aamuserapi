@@ -51,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByRole(role));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid UserDTO userDTO) {
         User user = userService.createUserFromDTO(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
@@ -67,7 +67,11 @@ public class UserController {
         if (!userService.userExists(id)) {
             return ResponseEntity.notFound().build();
         }
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

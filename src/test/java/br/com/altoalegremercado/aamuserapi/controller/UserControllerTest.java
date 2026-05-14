@@ -41,6 +41,7 @@ public class UserControllerTest {
     @Test
     void testGetUserByCpf() throws Exception {
         User user = new User();
+        user.setName("João");
         when(userService.getUserByCpf("12345678901")).thenReturn(user);
         mockMvc.perform(get("/users/cpf/12345678901"))
                 .andExpect(status().isOk())

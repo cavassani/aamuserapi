@@ -1,6 +1,7 @@
 package br.com.altoalegremercado.aamuserapi.controller;
 
 import br.com.altoalegremercado.aamuserapi.service.UserService;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -22,6 +23,8 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testGeneralException() throws Exception {
+        when(userService.getUserByName("invalid")).thenThrow(new RuntimeException("test error"));
+
         mockMvc.perform(get("/users/invalid"))
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().string("Erro interno: java.lang.RuntimeException"));
