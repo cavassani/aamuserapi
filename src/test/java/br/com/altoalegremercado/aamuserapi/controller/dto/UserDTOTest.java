@@ -26,15 +26,15 @@ public class UserDTOTest {
         dto.setCpf("123");
         Set<ConstraintViolation<UserDTO>> violations = validator.validate(dto);
         assertFalse(violations.isEmpty());
-        assertEquals("CPF deve ter 11 dígitos", violations.iterator().next().getMessage());
+        assertEquals("CPF inválido", violations.iterator().next().getMessage());
     }
 
     @Test
     void testValidDTO() {
         UserDTO dto = new UserDTO();
         dto.setName("João");
-        dto.setCpf("12345678901");
-        dto.setCnpj("12345678901234");
+        dto.setCpf("52998224725");
+        dto.setCnpj("11222333000181");
         Set<ConstraintViolation<UserDTO>> violations = validator.validate(dto);
         assertTrue(violations.isEmpty());
     }

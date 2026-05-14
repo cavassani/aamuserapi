@@ -52,14 +52,14 @@ public class UserControllerTest {
     void testCreateUser() throws Exception {
         UserDTO dto = new UserDTO();
         dto.setName("João");
-        dto.setCpf("12345678901");
-        dto.setCnpj("12345678901234");
+        dto.setCpf("52998224725");
+        dto.setCnpj("11222333000181");
 
         when(userService.createUserFromDTO(any(UserDTO.class))).thenReturn(new User());
 
         mockMvc.perform(post("/users")
                 .contentType("application/json")
-                .content("{\"name\":\"João\",\"cpf\":\"12345678901\",\"cnpj\":\"12345678901234\"}"))
+                .content("{\"name\":\"João\",\"cpf\":\"52998224725\",\"cnpj\":\"11222333000181\"}"))
                 .andExpect(status().isCreated());
     }
 

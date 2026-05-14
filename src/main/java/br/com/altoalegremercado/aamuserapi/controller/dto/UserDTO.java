@@ -1,8 +1,9 @@
 package br.com.altoalegremercado.aamuserapi.controller.dto;
 
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
+import br.com.altoalegremercado.aamuserapi.validation.CPF;
 
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 public class UserDTO {
@@ -14,7 +15,7 @@ public class UserDTO {
     private String telephone;
     private String cellphone;
 
-    @Size(min = 11, max = 11, message = "CPF deve ter 11 dígitos")
+    @CPF
     private String cpf;
 
     private String cnpj;

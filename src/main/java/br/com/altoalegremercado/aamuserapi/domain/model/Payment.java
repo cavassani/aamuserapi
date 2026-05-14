@@ -25,7 +25,8 @@ public class Payment {
     @Column(name = "transaction_id", length = 100)
     private String transactionId;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column
     private String description;
 
     @Temporal(TemporalType.TIMESTAMP)

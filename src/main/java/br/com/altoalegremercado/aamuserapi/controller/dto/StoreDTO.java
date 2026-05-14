@@ -1,14 +1,14 @@
 package br.com.altoalegremercado.aamuserapi.controller.dto;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import br.com.altoalegremercado.aamuserapi.validation.CNPJ;
 
 public class StoreDTO {
 
     @NotBlank
     private String name;
 
-    @Size(min = 14, max = 18, message = "CNPJ inválido")
+    @CNPJ
     private String cnpj;
 
     private String phone;
