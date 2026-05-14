@@ -1,6 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.controller.dto;
 
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class PaymentDTO {

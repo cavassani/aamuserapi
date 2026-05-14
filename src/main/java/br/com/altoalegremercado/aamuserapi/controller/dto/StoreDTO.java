@@ -1,6 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.controller.dto;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import br.com.altoalegremercado.aamuserapi.validation.CNPJ;
 
 public class StoreDTO {

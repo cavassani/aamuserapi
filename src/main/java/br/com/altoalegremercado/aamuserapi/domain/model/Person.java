@@ -2,7 +2,7 @@ package br.com.altoalegremercado.aamuserapi.domain.model;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @MappedSuperclass
 public class Person {

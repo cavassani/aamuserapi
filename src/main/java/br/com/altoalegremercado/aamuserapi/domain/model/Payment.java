@@ -1,6 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.domain.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 

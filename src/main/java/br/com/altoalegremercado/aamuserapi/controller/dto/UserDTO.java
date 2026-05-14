@@ -3,7 +3,7 @@ package br.com.altoalegremercado.aamuserapi.controller.dto;
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.validation.CPF;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 public class UserDTO {
