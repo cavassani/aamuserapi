@@ -1,5 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.service;
 
+import br.com.altoalegremercado.aamuserapi.controller.dto.UserDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.User;
 
@@ -39,6 +40,8 @@ public interface UserService {
      */
     List<User> getUsersByRole(Role role);
 
+    boolean roleExists(Role role);
+
     /**
      * Método que retorna uma lista de  usuarios fazendo a busca pelo role passado como parâmetro.
      *
@@ -46,6 +49,8 @@ public interface UserService {
      * @return usuário gerado
      */
     User createUser(User newUser);
+
+    User createUserFromDTO(UserDTO userDTO);
 
     /**
      * Método que retorna uma lista de  usuarios fazendo a busca pelo role passado como parâmetro.
@@ -73,4 +78,6 @@ public interface UserService {
      * @throws Exception caso o usuario cujo id foi passado por parametro não exista
      */
     Long deleteUser(Long id) throws Exception;
+
+    boolean userExists(Long id);
 }

@@ -1,5 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.service;
 
+import br.com.altoalegremercado.aamuserapi.controller.dto.UserDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.User;
 import br.com.altoalegremercado.aamuserapi.repository.UserRepository;
@@ -48,8 +49,28 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public boolean roleExists(Role role) {
+        return !userRepository.findByRole(role).isEmpty();
+    }
+
+    @Override
     public User createUser(User newUser) {
         return userRepository.save(newUser);
+    }
+
+    @Override
+    public User createUserFromDTO(UserDTO userDTO) {
+        User user = new User();
+        user.setName(userDTO.getName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword());
+        user.setTelephone(userDTO.getTelephone());
+        user.setCellphone(userDTO.getCellphone());
+        user.setCpf(userDTO.getCpf());
+        user.setCnpj(userDTO.getCnpj());
+        user.setActive(userDTO.getActive() != null ? userDTO.getActive() : true);
+        return userRepository.save(user);
     }
 
     @Override
@@ -77,5 +98,10 @@ public class UserServiceImpl implements UserService{
         
         userRepository.deleteById(user.get().getId());
         return id;
+    }
+
+    @Override
+    public boolean userExists(Long id) {
+        return userRepository.findById(id).isPresent();
     }
 }

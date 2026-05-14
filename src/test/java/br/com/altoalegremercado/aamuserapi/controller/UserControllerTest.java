@@ -1,5 +1,9 @@
 package br.com.altoalegremercado.aamuserapi.controller;
 
+import br.com.altoalegremercado.aamuserapi.controller.dto.UserDTO;
+import br.com.altoalegremercado.aamuserapi.domain.model.User;
+import br.com.altoalegremercado.aamuserapi.service.UserService;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -12,7 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
@@ -51,7 +54,7 @@ public class UserControllerTest {
         dto.setCpf("12345678901");
         dto.setCnpj("12345678901234");
 
-        when(userService.createUserFromDTO(dto)).thenReturn(new User());
+        when(userService.createUserFromDTO(any(UserDTO.class))).thenReturn(new User());
 
         mockMvc.perform(post("/users")
                 .contentType("application/json")

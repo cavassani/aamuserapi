@@ -1,5 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.controller;
 
+import br.com.altoalegremercado.aamuserapi.controller.dto.UserDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.User;
 import br.com.altoalegremercado.aamuserapi.service.UserService;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController

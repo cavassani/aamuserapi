@@ -1,4 +1,4 @@
-package br.com.altoalegremercado.aamuserapi.controller;
+package br.com.altoalegremercado.aamuserapi.controller.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
