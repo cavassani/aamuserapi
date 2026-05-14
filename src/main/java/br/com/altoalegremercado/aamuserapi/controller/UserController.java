@@ -42,14 +42,17 @@ public class UserController {
     }
 
     @GetMapping("/role/{role}")
-    public List<User> getUserbyRole(@PathVariable Role role) {
-        return  userService.getUsersByRole(role);
+    public ResponseEntity<List<User>> getUserByRole(@PathVariable Role role) {
+        if (!userService.roleExists(role)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userService.getUsersByRole(role));
     }
 
     @PostMapping("/")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User newUser = userService.createUser(user);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserDTO userDTO) {
+        User user = userService.createUserFromDTO(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PutMapping("/{id}")
@@ -58,8 +61,11 @@ public class UserController {
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deleteUser(@PathVariable Long id) throws Exception {
-        Long UserDeleted = userService.deleteUser(id);
-        return new ResponseEntity<>(UserDeleted, HttpStatus.ACCEPTED);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        if (!userService.userExists(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
