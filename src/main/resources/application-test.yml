@@ -1,0 +1,14 @@
+spring:
+  security:
+    user:
+      name: user
+      password: password
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope: READ, WRITE
+spring.autoconfigure.exclude:
+  - org.springframework.security.config.annotation.web.servlet.autoconfigure.WebSecurityAutoConfiguration
