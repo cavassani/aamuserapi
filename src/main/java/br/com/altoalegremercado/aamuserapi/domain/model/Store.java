@@ -1,5 +1,6 @@
 package br.com.altoalegremercado.aamuserapi.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,11 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
     private List<Product> products;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    @JsonBackReference
+    private User owner;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -63,6 +69,9 @@ public class Store {
 
     public List<Product> getProducts() { return products; }
     public void setProducts(List<Product> products) { this.products = products; }
+
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
 
     @PrePersist
     @PreUpdate

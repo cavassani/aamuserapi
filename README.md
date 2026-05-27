@@ -1,6 +1,6 @@
 # Aamuserapi — API do Projeto Alto Alegre Mercado
 
-API REST para gerenciamento de usuários, lojas, produtos e pagamentos do sistema Alto Alegre Mercado.
+API REST para vitrine de pequenos negócios. Lojistas cadastram lojas, produtos, categorias e promoções. Clientes acessam a vitrine e entram em contato via WhatsApp, Telegram ou telefone para fazer pedidos.
 
 ---
 
@@ -14,9 +14,8 @@ API REST para gerenciamento de usuários, lojas, produtos e pagamentos do sistem
 | Banco principal | MySQL 8.0 |
 | Banco de testes | H2 (em memória) |
 | ORM | JPA / Hibernate 6 |
-| Segurança | Spring Security + BCrypt |
-| Pagamentos | Stripe SDK |
-| Relatórios | JasperReports |
+| Segurança | Spring Security + JWT (jjwt 0.12.6) |
+| Documentação | Springdoc OpenAPI (Swagger UI) |
 | Testes | JUnit 5, Mockito, MockMvc |
 
 ---
@@ -26,33 +25,52 @@ API REST para gerenciamento de usuários, lojas, produtos e pagamentos do sistem
 ```
 src/main/java/br/com/altoalegremercado/aamuserapi/
 ├── config/
-│   └── SecurityConfig.java            PasswordEncoder (BCrypt)
+│   ├── SecurityConfig.java          SecurityFilterChain com JWT
+│   ├── JwtService.java              Geração/validação de tokens
+│   ├── JwtAuthenticationFilter.java  Filtro de autenticação
+│   ├── UserDetailsServiceImpl.java   Carrega usuário por email
+│   ├── UserPrincipal.java            Adaptador UserDetails
+│   └── OpenApiConfig.java            Configuração do Swagger
 ├── controller/
-│   ├── UserController.java            /users
-│   ├── StoreController.java           /api/stores
-│   ├── PaymentController.java         /api/payments
-│   ├── ReportController.java          /api/reports
-│   ├── GlobalExceptionHandler.java    Tratamento global de erros
+│   ├── AuthController.java           /auth (login/register)
+│   ├── UserController.java           /users
+│   ├── StoreController.java          /api/stores
+│   ├── ProductController.java        /api/products (busca global)
+│   ├── CategoryController.java       /api/categories
+│   ├── PromotionController.java      /api/promotions
+│   ├── PaymentController.java        /api/payments
+│   ├── ReportController.java         /api/reports (stub)
+│   ├── GlobalExceptionHandler.java   Tratamento global de erros
 │   └── dto/
+│       ├── LoginRequest.java
+│       ├── LoginResponse.java
 │       ├── UserDTO.java
 │       ├── StoreDTO.java
 │       ├── ProductDTO.java
+│       ├── CategoryDTO.java
+│       ├── PromotionDTO.java
 │       └── PaymentDTO.java
 ├── service/
 │   ├── UserService / UserServiceImpl
 │   ├── StoreService / StoreServiceImpl
 │   ├── ProductService / ProductServiceImpl
+│   ├── CategoryService / CategoryServiceImpl
+│   ├── PromotionService / PromotionServiceImpl
 │   ├── PaymentService / PaymentServiceImpl
 │   └── ReportService / ReportServiceImpl
 ├── repository/
 │   ├── UserRepository.java
 │   ├── StoreRepository.java
 │   ├── ProductRepository.java
+│   ├── CategoryRepository.java
+│   ├── PromotionRepository.java
 │   └── PaymentRepository.java
 ├── domain/model/
 │   ├── User.java, Person.java, Role.java, UserRole.java
 │   ├── Address.java
 │   ├── Store.java, Product.java
+│   ├── Category.java
+│   ├── Promotion.java
 │   ├── Payment.java, PaymentStatus.java
 └── validation/
     ├── CPF.java, CPFValidator.java
@@ -63,8 +81,12 @@ src/main/java/br/com/altoalegremercado/aamuserapi/
 src/test/
 └── java/br/com/altoalegremercado/aamuserapi/
     ├── controller/
+    │   ├── AuthControllerTest.java
     │   ├── UserControllerTest.java
     │   ├── StoreControllerTest.java
+    │   ├── ProductControllerTest.java
+    │   ├── CategoryControllerTest.java
+    │   ├── PromotionControllerTest.java
     │   ├── PaymentControllerTest.java
     │   ├── ReportControllerTest.java
     │   └── GlobalExceptionHandlerTest.java
@@ -72,6 +94,8 @@ src/test/
     │   ├── UserRepositoryTest.java
     │   ├── StoreRepositoryTest.java
     │   ├── ProductRepositoryTest.java
+    │   ├── CategoryRepositoryTest.java
+    │   ├── PromotionRepositoryTest.java
     │   └── PaymentRepositoryTest.java
     └── dto/
         └── UserDTOTest.java
@@ -123,6 +147,128 @@ A API estará em `http://localhost:8080`.
 
 ---
 
+## Documentação (Swagger)
+
+Com a aplicação rodando, acesse:
+
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+
+O Swagger UI permite explorar e testar todos os endpoints. Use o botão **Authorize** para configurar o token JWT (`Bearer <token>`).
+
+---
+
+## Autenticação
+
+A maioria dos endpoints exige token JWT no header:
+
+```
+Authorization: Bearer <seu-token>
+```
+
+### Obter token
+
+```bash
+# Registrar novo usuário
+curl -X POST http://localhost:8080/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"João","email":"joao@email.com","password":"123456","roles":["SHOP"]}'
+
+# Login
+curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"joao@email.com","password":"123456"}'
+```
+
+Ambos retornam: `{ "token": "eyJ...", "type": "Bearer", "expiresIn": 86400000 }`
+
+---
+
+## Endpoints
+
+### Autenticação (`/auth`) — público
+
+| Método | Path | Descrição |
+|---|---|---|
+| POST | `/auth/login` | Login (email + password) → JWT |
+| POST | `/auth/register` | Cadastro → JWT |
+
+### Lojas (`/api/stores`)
+
+| Método | Path | Descrição | Auth |
+|---|---|---|---|
+| GET | `/api/stores` | Listar todas | — |
+| GET | `/api/stores/search?q=termo` | Buscar por nome | — |
+| GET | `/api/stores/{id}` | Buscar por ID | — |
+| GET | `/api/stores/me` | Minhas lojas | JWT |
+| POST | `/api/stores` | Criar loja | JWT |
+| PUT | `/api/stores/{id}` | Atualizar | JWT |
+| DELETE | `/api/stores/{id}` | Remover | JWT |
+| GET | `/api/stores/{id}/products` | Listar produtos | — |
+| GET | `/api/stores/{id}/products?categoryId=X` | Filtrar por categoria | — |
+| POST | `/api/stores/{id}/products` | Criar produto | JWT |
+
+### Produtos (`/api/products`) — público
+
+| Método | Path | Descrição |
+|---|---|---|
+| GET | `/api/products/{id}` | Buscar por ID |
+| GET | `/api/products/search?q=termo` | Buscar por nome |
+| GET | `/api/products/category/{categoryId}` | Listar por categoria |
+
+### Categorias (`/api/categories`)
+
+| Método | Path | Descrição | Auth |
+|---|---|---|---|
+| GET | `/api/categories` | Listar todas | — |
+| GET | `/api/categories/{id}` | Buscar por ID | — |
+| POST | `/api/categories` | Criar | JWT |
+| PUT | `/api/categories/{id}` | Atualizar | JWT |
+| DELETE | `/api/categories/{id}` | Remover | JWT |
+
+### Promoções (`/api/promotions`)
+
+| Método | Path | Descrição | Auth |
+|---|---|---|---|
+| GET | `/api/promotions/product/{productId}` | Listar promoções de um produto | JWT |
+| GET | `/api/promotions/{id}` | Buscar por ID | JWT |
+| POST | `/api/promotions` | Criar | JWT |
+| PUT | `/api/promotions/{id}` | Atualizar | JWT |
+| DELETE | `/api/promotions/{id}` | Remover | JWT |
+
+### Usuários (`/users`) — JWT
+
+| Método | Path | Descrição |
+|---|---|---|
+| GET | `/users` | Listar todos |
+| GET | `/users/{name}` | Buscar por nome |
+| GET | `/users/cpf/{cpf}` | Buscar por CPF |
+| GET | `/users/cnpj/{cnpj}` | Buscar por CNPJ |
+| GET | `/users/role/{role}` | Buscar por role |
+| POST | `/users` | Criar |
+| PUT | `/users/{id}` | Atualizar |
+| DELETE | `/users/{id}` | Remover |
+
+### Pagamentos (`/api/payments`) — JWT
+
+| Método | Path | Descrição |
+|---|---|---|
+| GET | `/api/payments` | Listar todos |
+| GET | `/api/payments/{id}` | Buscar por ID |
+| POST | `/api/payments` | Processar |
+| PUT | `/api/payments/{id}/cancel` | Cancelar |
+| GET | `/api/payments/store/{storeId}` | Por loja |
+| GET | `/api/payments/status/{status}` | Por status |
+
+### Relatórios (`/api/reports`) — JWT (stub)
+
+| Método | Path | Descrição |
+|---|---|---|
+| POST | `/api/reports/sales/{storeId}` | Relatório de vendas |
+| POST | `/api/reports/payments/{storeId}` | Relatório de pagamentos |
+
+---
+
 ## Testes
 
 ### Rodar todos os testes
@@ -134,73 +280,21 @@ A API estará em `http://localhost:8080`.
 ### Rodar uma classe específica
 
 ```bash
-./mvnw test -Dtest=UserControllerTest
+./mvnw test -Dtest=AuthControllerTest
 ./mvnw test -Dtest=StoreControllerTest
-./mvnw test -Dtest=PaymentControllerTest
+./mvnw test -Dtest=CategoryControllerTest
 ```
 
-### Sobre a configuração de testes
+### Cobertura
 
-Os testes usam duas camadas de configuração:
-
-1. **`src/test/resources/application.properties`** — Desabilita o Spring Security em todos os contextos de teste (`@WebMvcTest`, `@SpringBootTest`, etc.) para evitar bloqueios de autenticação durante os testes.
-2. **`src/test/resources/application-test.properties`** — Configura o banco H2 em memória e o Dialect do Hibernate para os testes que usam o perfil `test`.
-
-**Total: 44 testes** (unitários e de integração)
+**Total: 79 testes** (unitários e de integração)
 
 | Grupo | Quantidade | Descrição |
 |---|---|---|
-| Controller | 28 | Testes com MockMvc e mocks dos serviços |
-| Repository | 13 | Testes com JPA/H2 |
+| Controller | 62 | Testes com MockMvc e mocks dos serviços |
+| Repository | 15 | Testes com JPA/H2 |
 | DTO | 2 | Validação de campos |
 | Application | 1 | Contexto da aplicação |
-
----
-
-## Endpoints
-
-### Usuários (`/users`)
-
-| Método | Path | Descrição |
-|---|---|---|
-| GET | `/users` | Listar todos |
-| GET | `/users/{name}` | Buscar por nome |
-| GET | `/users/cpf/{cpf}` | Buscar por CPF |
-| GET | `/users/cnpj/{cnpj}` | Buscar por CNPJ |
-| GET | `/users/role/{role}` | Buscar por role (ADMIN, CUSTOMER, SHOP) |
-| POST | `/users` | Criar usuário |
-| PUT | `/users/{id}` | Atualizar |
-| DELETE | `/users/{id}` | Remover |
-
-### Lojas (`/api/stores`)
-
-| Método | Path | Descrição |
-|---|---|---|
-| GET | `/api/stores` | Listar todas |
-| GET | `/api/stores/{id}` | Buscar por ID |
-| POST | `/api/stores` | Criar loja |
-| PUT | `/api/stores/{id}` | Atualizar |
-| DELETE | `/api/stores/{id}` | Remover |
-| GET | `/api/stores/{id}/products` | Listar produtos da loja |
-| POST | `/api/stores/{id}/products` | Criar produto na loja |
-
-### Pagamentos (`/api/payments`)
-
-| Método | Path | Descrição |
-|---|---|---|
-| GET | `/api/payments` | Listar todos |
-| GET | `/api/payments/{id}` | Buscar por ID |
-| POST | `/api/payments` | Processar pagamento |
-| PUT | `/api/payments/{id}/cancel` | Cancelar pagamento |
-| GET | `/api/payments/store/{storeId}` | Por loja |
-| GET | `/api/payments/status/{status}` | Por status |
-
-### Relatórios (`/api/reports`)
-
-| Método | Path | Descrição |
-|---|---|---|
-| POST | `/api/reports/sales/{storeId}` | Relatório de vendas |
-| POST | `/api/reports/payments/{storeId}` | Relatório de pagamentos |
 
 ---
 
@@ -208,18 +302,19 @@ Os testes usam duas camadas de configuração:
 
 ### Segurança
 
-- As senhas são armazenadas com **hash BCrypt** via `PasswordEncoder`.
-- O Spring Security está presente como dependência, mas durante os testes ele é **desabilitado** via `spring.autoconfigure.exclude` no `application.properties` de teste.
-
-### Compilação
-
-- O projeto exige **Java 21**.
-- O `pom.xml` já está configurado com `maven-compiler-plugin` versão `3.13.0` e `source`/`target`/`release` apontando para `21`.
-- Use o wrapper `./mvnw` incluso — ele baixa a versão correta do Maven automaticamente.
+- Todas as senhas são armazenadas com **hash BCrypt**.
+- Autenticação via **JWT** (HMAC-SHA256) com token de 24h de validade.
+- Endpoints públicos: `/auth/**`, `GET /api/stores/**`, `GET /api/products/**`, `GET /api/categories/**`, Swagger UI.
+- Durante os testes o Spring Security é desabilitado via `spring.autoconfigure.exclude`.
 
 ### Banco de dados
 
-- **Produção/desenvolvimento:** MySQL 8.0 (configurado em `src/main/resources/application.properties`).
-- **Testes:** H2 em memória (configurado em `src/test/resources/application-test.properties`).
+- **Produção/desenvolvimento:** MySQL 8.0 (`src/main/resources/application.properties`)
+- **Testes:** H2 em memória com compatibilidade MySQL (`src/test/resources/application-test.properties`)
+
+### Compilação
+
+- Projeto exige **Java 21**.
+- Use o wrapper `./mvnw` incluso.
 
 ---

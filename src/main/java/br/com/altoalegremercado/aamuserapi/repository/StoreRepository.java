@@ -14,4 +14,6 @@ public interface StoreRepository extends CrudRepository<Store, Long> {
     List<Store> findByNameContaining(String name);
 
     List<Store> findByActive(Boolean active);
+
+    List<Store> findByOwnerId(Long ownerId);
 }

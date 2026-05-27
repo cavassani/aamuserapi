@@ -1,11 +1,12 @@
 package br.com.altoalegremercado.aamuserapi.service;
 
 import br.com.altoalegremercado.aamuserapi.controller.dto.ProductDTO;
+import br.com.altoalegremercado.aamuserapi.domain.model.Category;
 import br.com.altoalegremercado.aamuserapi.domain.model.Product;
 import br.com.altoalegremercado.aamuserapi.domain.model.Store;
+import br.com.altoalegremercado.aamuserapi.repository.CategoryRepository;
 import br.com.altoalegremercado.aamuserapi.repository.ProductRepository;
 import br.com.altoalegremercado.aamuserapi.repository.StoreRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +16,14 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
+    private final CategoryRepository categoryRepository;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, StoreRepository storeRepository) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              StoreRepository storeRepository,
+                              CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -28,8 +32,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getProductsByStoreAndCategory(Long storeId, Long categoryId) {
+        return productRepository.findByStoreIdAndCategoryId(storeId, categoryId);
+    }
+
+    @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Product> searchByName(String name) {
+        return productRepository.findByNameContaining(name);
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
     }
 
     @Override
@@ -44,6 +63,12 @@ public class ProductServiceImpl implements ProductService {
         product.setSku(dto.getSku());
         product.setActive(dto.getActive() != null ? dto.getActive() : true);
         product.setStore(store);
+
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new Exception("Category with ID (" + dto.getCategoryId() + ") not found!"));
+            product.setCategory(category);
+        }
 
         return productRepository.save(product);
     }
@@ -63,6 +88,14 @@ public class ProductServiceImpl implements ProductService {
             Store store = storeRepository.findById(dto.getStoreId())
                     .orElseThrow(() -> new Exception("Store with ID (" + dto.getStoreId() + ") not found!"));
             product.setStore(store);
+        }
+
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new Exception("Category with ID (" + dto.getCategoryId() + ") not found!"));
+            product.setCategory(category);
+        } else {
+            product.setCategory(null);
         }
 
         return productRepository.save(product);

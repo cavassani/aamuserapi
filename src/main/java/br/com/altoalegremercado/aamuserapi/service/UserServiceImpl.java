@@ -3,24 +3,32 @@ package br.com.altoalegremercado.aamuserapi.service;
 import br.com.altoalegremercado.aamuserapi.controller.dto.UserDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.User;
+import br.com.altoalegremercado.aamuserapi.domain.model.UserRole;
 import br.com.altoalegremercado.aamuserapi.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -64,12 +72,25 @@ public class UserServiceImpl implements UserService{
         user.setName(userDTO.getName());
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setTelephone(userDTO.getTelephone());
         user.setCellphone(userDTO.getCellphone());
         user.setCpf(userDTO.getCpf());
         user.setCnpj(userDTO.getCnpj());
         user.setActive(userDTO.getActive() != null ? userDTO.getActive() : true);
+
+        if (userDTO.getRoles() != null) {
+            List<UserRole> userRoles = userDTO.getRoles().stream()
+                    .map(role -> {
+                        UserRole ur = new UserRole();
+                        ur.setRole(role);
+                        ur.setUser(user);
+                        return ur;
+                    })
+                    .collect(Collectors.toList());
+            user.setRole(userRoles);
+        }
+
         return userRepository.save(user);
     }
 

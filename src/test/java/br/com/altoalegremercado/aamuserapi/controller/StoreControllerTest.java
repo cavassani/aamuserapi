@@ -1,19 +1,27 @@
 package br.com.altoalegremercado.aamuserapi.controller;
 
+import br.com.altoalegremercado.aamuserapi.config.UserPrincipal;
 import br.com.altoalegremercado.aamuserapi.controller.dto.ProductDTO;
 import br.com.altoalegremercado.aamuserapi.controller.dto.StoreDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Product;
+import br.com.altoalegremercado.aamuserapi.domain.model.Role;
 import br.com.altoalegremercado.aamuserapi.domain.model.Store;
+import br.com.altoalegremercado.aamuserapi.domain.model.User;
+import br.com.altoalegremercado.aamuserapi.domain.model.UserRole;
 import br.com.altoalegremercado.aamuserapi.service.ProductService;
 import br.com.altoalegremercado.aamuserapi.service.StoreService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,6 +40,23 @@ public class StoreControllerTest {
 
     @MockBean
     private ProductService productService;
+
+    @BeforeEach
+    void setUp() {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("lojista@test.com");
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(Role.SHOP);
+        userRole.setUser(user);
+        user.setRole(List.of(userRole));
+
+        UserPrincipal principal = new UserPrincipal(user);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities())
+        );
+    }
 
     @Test
     void testListStores() throws Exception {
@@ -64,7 +89,7 @@ public class StoreControllerTest {
 
     @Test
     void testCreateStore() throws Exception {
-        when(storeService.createStore(any(StoreDTO.class))).thenReturn(new Store());
+        when(storeService.createStore(any(StoreDTO.class), any())).thenReturn(new Store());
 
         mockMvc.perform(post("/api/stores")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,5 +152,32 @@ public class StoreControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"Produto Teste\",\"price\":10.50}"))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void testSearchStores() throws Exception {
+        when(storeService.searchByName("Mercado")).thenReturn(Arrays.asList(new Store()));
+
+        mockMvc.perform(get("/api/stores/search?q=Mercado"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void testListMyStores() throws Exception {
+        when(storeService.getStoresByOwner(any())).thenReturn(Arrays.asList(new Store()));
+
+        mockMvc.perform(get("/api/stores/me"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void testListProductsByStoreWithCategory() throws Exception {
+        when(productService.getProductsByStoreAndCategory(1L, 2L)).thenReturn(Arrays.asList(new Product()));
+
+        mockMvc.perform(get("/api/stores/1/products?categoryId=2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
     }
 }

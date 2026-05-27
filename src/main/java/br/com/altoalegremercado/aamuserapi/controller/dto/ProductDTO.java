@@ -17,6 +17,7 @@ public class ProductDTO {
     private String sku;
     private Boolean active;
     private Long storeId;
+    private Long categoryId;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -35,4 +36,7 @@ public class ProductDTO {
 
     public Long getStoreId() { return storeId; }
     public void setStoreId(Long storeId) { this.storeId = storeId; }
+
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 }

@@ -3,8 +3,8 @@ package br.com.altoalegremercado.aamuserapi.service;
 import br.com.altoalegremercado.aamuserapi.controller.dto.StoreDTO;
 import br.com.altoalegremercado.aamuserapi.domain.model.Address;
 import br.com.altoalegremercado.aamuserapi.domain.model.Store;
+import br.com.altoalegremercado.aamuserapi.domain.model.User;
 import br.com.altoalegremercado.aamuserapi.repository.StoreRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +14,6 @@ public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
 
-    @Autowired
     public StoreServiceImpl(StoreRepository storeRepository) {
         this.storeRepository = storeRepository;
     }
@@ -30,13 +29,14 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Store createStore(StoreDTO dto) {
+    public Store createStore(StoreDTO dto, User owner) {
         Store store = new Store();
         store.setName(dto.getName());
         store.setCnpj(dto.getCnpj());
         store.setPhone(dto.getPhone());
         store.setEmail(dto.getEmail());
         store.setActive(dto.getActive() != null ? dto.getActive() : true);
+        store.setOwner(owner);
 
         Address address = new Address();
         address.setStreet(dto.getStreet());
@@ -89,5 +89,15 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public List<Store> getActiveStores() {
         return storeRepository.findByActive(true);
+    }
+
+    @Override
+    public List<Store> getStoresByOwner(User owner) {
+        return storeRepository.findByOwnerId(owner.getId());
+    }
+
+    @Override
+    public List<Store> searchByName(String name) {
+        return storeRepository.findByNameContaining(name);
     }
 }

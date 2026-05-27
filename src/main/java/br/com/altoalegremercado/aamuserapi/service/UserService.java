@@ -14,6 +14,8 @@ public interface UserService {
      * @param  name nome do usuário a ser buscado
      * @return usuario
      */
+    User getUserByEmail(String email);
+
     User getUserByName(String name);
 
     /**
